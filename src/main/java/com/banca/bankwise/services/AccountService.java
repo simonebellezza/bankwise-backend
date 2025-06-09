@@ -54,7 +54,7 @@ public class AccountService {
                 .collect(Collectors.toList());
     }
 
-    public AccountDetailsDTO findById(String username, long id){
+    public AccountDetailsDTO findById(long id, String username){
         Account account = accountRepository.findByIdAndUserUsername(id, username)
                 .orElseThrow(() -> new AccountNotFoundException("Account non trovato o non appartiene all'utente"));
         return AccountMapper.toAccountDetailsDTO(account);

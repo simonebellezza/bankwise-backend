@@ -44,7 +44,7 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<AccountDetailsDTO> findAccountById(@PathVariable long id){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        AccountDetailsDTO accountDetailsDTO = accountService.findById(username, id);
+        AccountDetailsDTO accountDetailsDTO = accountService.findById(id, username);
         return ResponseEntity.ok(accountDetailsDTO);
     }
 }
