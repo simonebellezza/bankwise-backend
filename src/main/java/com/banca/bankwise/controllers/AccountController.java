@@ -33,7 +33,7 @@ public class AccountController {
     }
 
     @Operation(summary = "Recupera accounts dell'utente corrente")
-    @GetMapping("/getAccounts")
+    @GetMapping("/accounts")
     public ResponseEntity<List<AccountDTO>> findAllAccounts() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         List<AccountDTO> accounts = accountService.findAll(username);
@@ -41,7 +41,7 @@ public class AccountController {
     }
 
     @Operation(summary = "Recupera un account dell'utente con la lista di movimenti")
-    @GetMapping("/getAccount/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<AccountDetailsDTO> findAccountById(@PathVariable long id){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         AccountDetailsDTO accountDetailsDTO = accountService.findById(username, id);

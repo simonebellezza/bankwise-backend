@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -36,12 +38,12 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegisterDTO user) {
         UserResponseDTO userResponseDTO = userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Utente registrato con successo: " + userResponseDTO.getFirstName() + " " + userResponseDTO.getLastName());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Utente registrato correttamente");
     }
 
     @Operation(summary = "Login utente")
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO user) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody UserLoginDTO user) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(), user.getPassword()
@@ -49,7 +51,7 @@ public class UserController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtUtil.generateToken(authentication.getName());
-        return ResponseEntity.ok("bearer token: " + token);
+        return ResponseEntity.ok(Map.of("token", token));
     }
 
     @Operation(summary = "Informazioni utente corrente con i relativi accounts")

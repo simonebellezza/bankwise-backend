@@ -30,7 +30,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // Il metodo doFilterInternal estende OncePerRequestFilter e viene chiamato per ogni richiesta HTTP
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        //  recupera il valore dell'intestazione Authorization della richiesta HTTP (Bearer <tokrn>)
+
+
+        //  Recupera il valore dell'intestazione Authorization della richiesta HTTP (Bearer <tokrn>)
         String authorizationHeader = request.getHeader("Authorization");
 
         // Se Authorization è presente e inizia con "Bearer " estrae il token e il nome utente
