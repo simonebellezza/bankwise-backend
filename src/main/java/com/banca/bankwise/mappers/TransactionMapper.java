@@ -4,28 +4,47 @@ import com.banca.bankwise.dtos.TransactionRequestDTO;
 import com.banca.bankwise.dtos.TransactionResponseDTO;
 import com.banca.bankwise.dtos.TransactionTransferRequestDTO;
 import com.banca.bankwise.entities.Account;
+import com.banca.bankwise.entities.Card;
 import com.banca.bankwise.entities.Transaction;
 import com.banca.bankwise.enums.TransactionType;
 
 public class TransactionMapper {
 
-    public static Transaction toDeposit(TransactionRequestDTO dto, Account account) {
+    public static Transaction toDeposit(TransactionRequestDTO dto, Account account, Card card) {
         Transaction transaction = new Transaction();
         transaction.setTransactionType(TransactionType.DEPOSIT);
         transaction.setAccount(account);
         transaction.setAmount(dto.getAmount());
         transaction.setCurrency(account.getCurrency());
         transaction.setDescription(dto.getDescription());
+        if (card != null) {
+            transaction.setCard(card);
+        }
         return transaction;
     }
 
-    public static Transaction toWithdrawal(TransactionRequestDTO dto, Account account) {
+    public static Transaction toWithdrawal(TransactionRequestDTO dto, Account account, Card card) {
         Transaction transaction = new Transaction();
         transaction.setTransactionType(TransactionType.WITHDRAWAL);
         transaction.setAccount(account);
         transaction.setAmount(dto.getAmount().negate());
         transaction.setCurrency(account.getCurrency());
         transaction.setDescription(dto.getDescription());
+        if (card != null) {
+            transaction.setCard(card);
+        }
+        return transaction;
+    }
+    public static Transaction toPayment(TransactionRequestDTO dto, Account account, Card card) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionType(TransactionType.PAYMENT);
+        transaction.setAccount(account);
+        transaction.setAmount(dto.getAmount().negate());
+        transaction.setCurrency(account.getCurrency());
+        transaction.setDescription(dto.getDescription());
+        if (card != null) {
+            transaction.setCard(card);
+        }
         return transaction;
     }
 

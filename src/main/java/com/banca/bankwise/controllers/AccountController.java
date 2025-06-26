@@ -26,9 +26,9 @@ public class AccountController {
 
     @Operation(summary = "Crea un nuovo account")
     @PostMapping("/create")
-    public ResponseEntity<AccountDetailsDTO> createAccount(@Valid @RequestBody AccountRequestDTO accountRequestDTO) {
+    public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody AccountRequestDTO accountRequestDTO) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        AccountDetailsDTO accountResponseDTO = accountService.createAccount(accountRequestDTO, username);
+        AccountDTO accountResponseDTO = accountService.createAccount(accountRequestDTO, username);
         return ResponseEntity.status(HttpStatus.CREATED).body(accountResponseDTO);
     }
 

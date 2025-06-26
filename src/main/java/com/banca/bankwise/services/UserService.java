@@ -10,6 +10,9 @@ import com.banca.bankwise.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 @Service
 public class UserService {
 
@@ -26,6 +29,12 @@ public class UserService {
         if(userRepository.existsByUsername(userRegisterDTO.getUsername())){
             throw new BadRequestException("Username già utilizzato");
         }
+
+        // Controlla se l'utente è maggiorenne
+        if(Period.between(userRegisterDTO.getDateOfBirth(), LocalDate.now()).getYears() < 18) {
+            throw new BadRequestException("Devi essere maggiorenne (almeno 18 anni)");
+        }
+
         User user = UserMapper.toUserEntity(userRegisterDTO);
         // hash password
         user.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));

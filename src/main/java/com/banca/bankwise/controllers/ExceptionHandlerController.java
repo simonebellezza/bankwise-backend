@@ -60,14 +60,27 @@ public class ExceptionHandlerController {
     }
 
     // Gestisce valori enum non presenti. Currency è l'unico enum inserito lato client
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponseDTO> handleInvalidEnum(HttpMessageNotReadableException ex) {
-        if (ex.getMessage().contains("Currency")) {
-            return ResponseEntity.badRequest().body(new ErrorResponseDTO(400, "Valore non valido per il campo 'currency'. Valori ammessi: EUR, USD, GBP, INR, JPY.")
-            );
-        }
-        return ResponseEntity.badRequest().body(new ErrorResponseDTO(400, "Richiesta non valida"));
-    }
+   // Gestisce valori enum non presenti per CardType e Circuit
+   @ExceptionHandler(HttpMessageNotReadableException.class)
+   public ResponseEntity<ErrorResponseDTO> handleInvalidEnum(HttpMessageNotReadableException ex) {
+       String message = ex.getMessage();
+       if (message.contains("Currency")) {
+           return ResponseEntity.badRequest().body(
+               new ErrorResponseDTO(400, "Valore non valido per il campo 'currency'. Valori ammessi: EUR, USD, GBP, INR, JPY.")
+           );
+       }
+       if (message.contains("CardType")) {
+           return ResponseEntity.badRequest().body(
+               new ErrorResponseDTO(400, "Valore non valido per il campo 'cardType'. Valori ammessi: DEBIT, CREDIT.")
+           );
+       }
+       if (message.contains("Circuit")) {
+           return ResponseEntity.badRequest().body(
+               new ErrorResponseDTO(400, "Valore non valido per il campo 'circuit'. Valori ammessi: VISA, MASTERCARD, AMERICAN_EXPRESS.")
+           );
+       }
+       return ResponseEntity.badRequest().body(new ErrorResponseDTO(400, "Richiesta non valida"));
+   }
 
     // Gestisce le credenziali di login errate
     @ExceptionHandler(BadCredentialsException.class)

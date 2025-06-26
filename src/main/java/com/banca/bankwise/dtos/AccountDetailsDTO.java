@@ -9,7 +9,6 @@ import java.util.List;
 public class AccountDetailsDTO {
 
     private BigDecimal balance;
-    private String bankName;
     private Currency currency;
     private String iban;
     private List<TransactionResponseDTO> transactions;

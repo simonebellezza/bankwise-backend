@@ -14,9 +14,6 @@ public class AccountRequestDTO {
     @Min(value = 0, message = "Il saldo deve essere maggiore o uguale a 0.00")
     private BigDecimal balance;
 
-    @NotBlank(message = "Il nome della banca è obbligatorio.")
-    private String bankName;
-
     @NotNull(message = "La valuta è obbligatoria.")
     private Currency currency;
 }

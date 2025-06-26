@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 @Data
 public class AccountDTO {
 
+    private long id;
     private BigDecimal balance;
-    private String bankName;
     private Currency currency;
     private String iban;
 }

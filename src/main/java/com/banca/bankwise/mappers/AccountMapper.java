@@ -13,7 +13,6 @@ public class AccountMapper {
         accountDetailsDTO.setCurrency(account.getCurrency());
         accountDetailsDTO.setIban(account.getIban());
         accountDetailsDTO.setBalance(account.getBalance());
-        accountDetailsDTO.setBankName(account.getBankName());
 
         // Lista transazioni se ci sono
         if (account.getTransactions() != null){
@@ -26,7 +25,7 @@ public class AccountMapper {
 
     public static AccountDTO toAccountDTO(Account account){
         AccountDTO accountDTO = new AccountDTO();
-        accountDTO.setBankName(account.getBankName());
+        accountDTO.setId(account.getId());
         accountDTO.setIban(account.getIban());
         accountDTO.setBalance(account.getBalance());
         accountDTO.setCurrency(account.getCurrency());
@@ -36,7 +35,6 @@ public class AccountMapper {
     public static Account toAccountEntity(AccountRequestDTO accountRequestDTO) {
         Account account = new Account();
         account.setBalance(accountRequestDTO.getBalance());
-        account.setBankName(accountRequestDTO.getBankName());
         account.setCurrency(accountRequestDTO.getCurrency());
         return account;
     }

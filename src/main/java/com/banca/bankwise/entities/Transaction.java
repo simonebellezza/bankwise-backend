@@ -44,7 +44,7 @@ public class Transaction {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-
-
-
+    @ManyToOne
+    @JoinColumn(name = "card_id", nullable = true)
+    private Card card;
 }

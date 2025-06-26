@@ -4,6 +4,7 @@ import com.banca.bankwise.dtos.TransactionRequestDTO;
 import com.banca.bankwise.dtos.TransactionResponseDTO;
 import com.banca.bankwise.dtos.TransactionTransferRequestDTO;
 import com.banca.bankwise.entities.Account;
+import com.banca.bankwise.entities.Notification;
 import com.banca.bankwise.entities.Transaction;
 import com.banca.bankwise.entities.User;
 import com.banca.bankwise.exceptions.AccountNotFoundException;
@@ -11,6 +12,7 @@ import com.banca.bankwise.exceptions.BadRequestException;
 import com.banca.bankwise.exceptions.UserNotFoundException;
 import com.banca.bankwise.mappers.TransactionMapper;
 import com.banca.bankwise.repositories.AccountRepository;
+import com.banca.bankwise.repositories.NotificationRepository;
 import com.banca.bankwise.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -20,10 +22,14 @@ public class TransactionService {
 
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+    private final NotificationRepository notificationRepository;
 
-    public TransactionService(UserRepository userRepository, AccountRepository accountRepository) {
+    public TransactionService(UserRepository userRepository,
+                              AccountRepository accountRepository,
+                              NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @Transactional
@@ -43,7 +49,7 @@ public class TransactionService {
         }
 
         // Crea la transazione
-        Transaction transaction = TransactionMapper.toDeposit(dto, account);
+        Transaction transaction = TransactionMapper.toDeposit(dto, account, null);
 
         // Aggiorno il bilancio dell'account e aggiungo la transazione
         account.setBalance(account.getBalance().add(transaction.getAmount()));
@@ -51,10 +57,17 @@ public class TransactionService {
         // Aggiungo la transazione alla lista
         account.getTransactions().add(transaction);
 
-        // Salva la transazione (propagazione tramite CascadeType.ALL)
-        accountRepository.save(account);
+        // Creo la notifica
+        Notification notification = new Notification();
+        notification.setMessage("Hai effettuato un deposito");
+        notification.setUser(user);
+        user.getNotifications().add(notification);
 
-        // Restituisci la risposta mappata
+        // Persistenza
+        accountRepository.save(account);
+        notificationRepository.save(notification);
+
+        // Restituisco la risposta mappata
         return TransactionMapper.toDto(transaction);
     }
 
@@ -80,7 +93,7 @@ public class TransactionService {
         }
 
         // Creo la transazione
-        Transaction transaction = TransactionMapper.toWithdrawal(dto, account);
+        Transaction transaction = TransactionMapper.toWithdrawal(dto, account, null);
 
         // Aggiorno il bilancio dell'account
         account.setBalance(account.getBalance().add(transaction.getAmount()));
@@ -88,8 +101,14 @@ public class TransactionService {
         // Aggiungo la transazione alla lista
         account.getTransactions().add(transaction);
 
+        Notification notification = new Notification();
+        notification.setMessage("Hai effettuato un prelievo");
+        notification.setUser(user);
+        user.getNotifications().add(notification);
+
         // Persistenza
         accountRepository.save(account);
+        notificationRepository.save(notification);
         return TransactionMapper.toDto(transaction);
     }
 
@@ -98,13 +117,13 @@ public class TransactionService {
 
         // Recupero l'utente loggato
         User sender = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Account non trovato"));
+                .orElseThrow(() -> new UserNotFoundException("Conto non trovato"));
 
         Account senderAccount = accountRepository.findById(dto.getSenderAccountId())
                 .orElseThrow(() -> new AccountNotFoundException("Il tuo account non è stato trovato"));
 
         Account receiverAccount = accountRepository.findByIban(dto.getReceiverIban())
-                .orElseThrow(() -> new AccountNotFoundException("Account del ricevente non trovato"));
+                .orElseThrow(() -> new AccountNotFoundException("Conto del ricevente non trovato"));
 
         // Verifica che mittente e destinatario non coincidano
         if(senderAccount.getId() == receiverAccount.getId()){
@@ -113,7 +132,7 @@ public class TransactionService {
 
         // Verifica che l'account di chi invia sia dell'utente autenticato
         if (!senderAccount.getUser().equals(sender)) {
-            throw new BadRequestException("L'account non appartiene all'utente autenticato");
+            throw new BadRequestException("Il conto non appartiene all'utente autenticato");
         }
 
         // Verifica che l'importo sia consentito
@@ -121,14 +140,13 @@ public class TransactionService {
             throw new BadRequestException("Importo non consentito");
         }
 
-
         // Creazione della transazione lato sender
         Transaction senderTransaction = TransactionMapper.toTransferSender(dto, senderAccount);
 
-        // Creazine della transazione lato receiver
+        // Creazione della transazione lato receiver
         Transaction receiverTransaction = TransactionMapper.toTransferReceiver(dto, receiverAccount);
 
-        // Aggiorniamo i respettivi bilanci
+        // Aggiorniamo i rispettivi bilanci
         senderAccount.setBalance(senderAccount.getBalance().add(senderTransaction.getAmount()));
         receiverAccount.setBalance(receiverAccount.getBalance().add(receiverTransaction.getAmount()));
 
@@ -136,9 +154,26 @@ public class TransactionService {
         senderAccount.getTransactions().add(senderTransaction);
         receiverAccount.getTransactions().add(receiverTransaction);
 
+        // Creazione delle notifiche lato sender
+
+        Notification senderNotification = new Notification();
+        senderNotification.setMessage("Bonifico disposto a favore di " + receiverAccount.getUser().getFirstName());
+        senderNotification.setUser(sender);
+        sender.getNotifications().add(senderNotification);
+
+        // Creazione delle notifiche lato receiver
+
+        Notification receiverNotification = new Notification();
+        receiverNotification.setMessage("Bonifico ricevuto da " + sender.getFirstName());
+        User receiver = receiverAccount.getUser();
+        receiverNotification.setUser(receiver);
+        receiver.getNotifications().add(receiverNotification);
+
         // Persistenza
         accountRepository.save(senderAccount);
         accountRepository.save(receiverAccount);
+        notificationRepository.save(senderNotification);
+        notificationRepository.save(receiverNotification);
 
         return TransactionMapper.toDto(senderTransaction);
     }
