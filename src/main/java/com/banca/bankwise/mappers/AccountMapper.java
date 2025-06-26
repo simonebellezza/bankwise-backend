@@ -1,30 +1,13 @@
 package com.banca.bankwise.mappers;
 
-import com.banca.bankwise.dtos.AccountDTO;
-import com.banca.bankwise.dtos.AccountDetailsDTO;
+import com.banca.bankwise.dtos.AccountResponseDTO;
 import com.banca.bankwise.dtos.AccountRequestDTO;
 import com.banca.bankwise.entities.Account;
-import java.util.stream.Collectors;
 
 public class AccountMapper {
 
-    public static AccountDetailsDTO toAccountDetailsDTO(Account account) {
-        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
-        accountDetailsDTO.setCurrency(account.getCurrency());
-        accountDetailsDTO.setIban(account.getIban());
-        accountDetailsDTO.setBalance(account.getBalance());
-
-        // Lista transazioni se ci sono
-        if (account.getTransactions() != null){
-            accountDetailsDTO.setTransactions(account.getTransactions().stream()
-                .map(TransactionMapper::toDto)
-                .collect(Collectors.toList()));
-        }
-        return accountDetailsDTO;
-    }
-
-    public static AccountDTO toAccountDTO(Account account){
-        AccountDTO accountDTO = new AccountDTO();
+    public static AccountResponseDTO toAccountDTO(Account account){
+        AccountResponseDTO accountDTO = new AccountResponseDTO();
         accountDTO.setId(account.getId());
         accountDTO.setIban(account.getIban());
         accountDTO.setBalance(account.getBalance());

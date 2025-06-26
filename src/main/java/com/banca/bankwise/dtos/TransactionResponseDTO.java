@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Data
 public class TransactionResponseDTO {
 
+    private long id;
     private String transactionType;
     private BigDecimal amount;
     private Currency currency;

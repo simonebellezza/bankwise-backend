@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class AccountDTO {
+public class AccountResponseDTO {
 
     private long id;
     private BigDecimal balance;

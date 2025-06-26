@@ -13,6 +13,6 @@ public class UserResponseDTO {
     private String phoneNumber;
     private String address;
     private String dateOfBirth;
-    private List<AccountDTO> accounts;
+    private List<AccountResponseDTO> accounts;
 
 }

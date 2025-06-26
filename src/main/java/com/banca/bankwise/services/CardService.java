@@ -68,7 +68,7 @@ public class CardService {
         // Creiamo la notifica
         Notification notification = new Notification();
         notification.setUser(user);
-        notification.setMessage("Abbiamo aggiunto una nuova carta al conto: " + card.getCardNumber());
+        notification.setMessage("La tua carta numero: " + card.getCardNumber() + "adesso è attiva!");
 
         // Salviamo la carta e la notifica
         cardRepository.save(card);

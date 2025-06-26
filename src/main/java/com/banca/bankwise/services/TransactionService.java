@@ -17,6 +17,9 @@ import com.banca.bankwise.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class TransactionService {
 
@@ -176,6 +179,23 @@ public class TransactionService {
         notificationRepository.save(receiverNotification);
 
         return TransactionMapper.toDto(senderTransaction);
+    }
+
+    public List<TransactionResponseDTO> getTransactions(String username, long accountId){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Contro non trovato"));
+
+        // Verifico che il conto appartenga all'utente
+        if(!account.getUser().equals(user)) {
+            throw new BadRequestException("Il conto non appartiene all'utente autenticato");
+        }
+
+        return account.getTransactions().stream()
+                .map(TransactionMapper::toDto)
+                .collect(Collectors.toList());
     }
 
 }

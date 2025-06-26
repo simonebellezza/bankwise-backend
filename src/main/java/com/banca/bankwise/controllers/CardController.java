@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/card")
 public class CardController {
@@ -27,32 +29,32 @@ public class CardController {
 
     @Operation(summary = "Crea una nuova carta")
     @PostMapping("/create")
-    public ResponseEntity<CardResponseDTO> createCard(@Valid @RequestBody CardRequestDTO dto) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<CardResponseDTO> createCard(@Valid @RequestBody CardRequestDTO dto, Principal principal) {
+        String username = principal.getName();
         CardResponseDTO cardResponseDTO = cardService.createCard(username, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(cardResponseDTO);
     }
 
     @Operation(summary = "Effettua un pagamento con una carta")
     @PostMapping("/payment")
-    public ResponseEntity<TransactionResponseDTO> paymentByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<TransactionResponseDTO> paymentByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO,Principal principal) {
+        String username = principal.getName();
         TransactionResponseDTO transactionResponseDTO = cardService.paymentByCard(username, transactionRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
     }
 
     @Operation(summary = "Ricarica una carta")
     @PostMapping("/deposit")
-    public ResponseEntity<TransactionResponseDTO> depositByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<TransactionResponseDTO> depositByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO,Principal principal) {
+        String username = principal.getName();
         TransactionResponseDTO transactionResponseDTO = cardService.depositByCard(username, transactionRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
     }
 
     @Operation(summary = "Preleva denaro da una carta")
     @PostMapping("/withdraw")
-    public ResponseEntity<TransactionResponseDTO> withdrawByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<TransactionResponseDTO> withdrawByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO,Principal principal) {
+        String username = principal.getName();
         TransactionResponseDTO transactionResponseDTO = cardService.withdrawalByCard(username, transactionRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
     }

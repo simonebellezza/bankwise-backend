@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -54,8 +55,8 @@ public class UserController {
 
     @Operation(summary = "Informazioni utente corrente con i relativi accounts")
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Principal principal) {
+        String username = principal.getName();
         UserResponseDTO userResponseDTO = userService.getUserByUsername(username);
         return ResponseEntity.ok(userResponseDTO);
     }

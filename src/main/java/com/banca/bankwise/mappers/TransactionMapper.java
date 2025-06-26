@@ -74,6 +74,7 @@ public class TransactionMapper {
         }
 
         TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
+        transactionResponseDTO.setId(transaction.getId());
         transactionResponseDTO.setTransactionType(transaction.getTransactionType().toString());
         transactionResponseDTO.setAmount(transaction.getAmount());
         transactionResponseDTO.setCurrency(transaction.getCurrency());
