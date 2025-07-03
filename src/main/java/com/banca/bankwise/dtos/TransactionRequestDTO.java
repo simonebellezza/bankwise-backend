@@ -13,8 +13,4 @@ public class TransactionRequestDTO {
 
     @Size(max = 255, message = "La descrizione non può superare i 255 caratteri.")
     private String description;
-
-    private Long cardId;
-
-    private String pin;
 }

@@ -29,6 +29,9 @@ package com.banca.bankwise.entities;
         @Column(name = "iban", nullable = false, unique = true)
         private String iban;
 
+        @Column(name = "account_number", nullable = false, unique = true)
+        private String accountNumber;
+
         // Relazioni
 
         @ManyToOne

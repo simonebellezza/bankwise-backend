@@ -4,13 +4,17 @@ import com.banca.bankwise.dtos.AccountRequestDTO;
 import com.banca.bankwise.dtos.AccountResponseDTO;
 import com.banca.bankwise.entities.Account;
 import com.banca.bankwise.entities.Notification;
+import com.banca.bankwise.entities.Transaction;
 import com.banca.bankwise.entities.User;
+import com.banca.bankwise.enums.TransactionType;
+import com.banca.bankwise.exceptions.AccountNotFoundException;
+import com.banca.bankwise.exceptions.BadRequestException;
 import com.banca.bankwise.exceptions.UserNotFoundException;
 import com.banca.bankwise.mappers.AccountMapper;
 import com.banca.bankwise.repositories.AccountRepository;
 import com.banca.bankwise.repositories.NotificationRepository;
 import com.banca.bankwise.repositories.UserRepository;
-import com.banca.bankwise.utils.GenerateIban;
+import com.banca.bankwise.utils.GenerateNumbers;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +25,16 @@ import java.util.stream.Collectors;
 public class AccountService {
 
     private final UserRepository userRepository;
-    private final GenerateIban generateIban;
+    private final GenerateNumbers generateNumbers;
+    private final AccountRepository accountRepository;
 
     public AccountService(UserRepository userRepository,
                           AccountRepository accountRepository,
                           NotificationRepository notificationRepository,
-                          GenerateIban generateIban) {
+                          GenerateNumbers generateNumbers) {
         this.userRepository = userRepository;
-        this.generateIban = generateIban;
+        this.generateNumbers = generateNumbers;
+        this.accountRepository = accountRepository;
     }
 
     @Transactional
@@ -38,8 +44,19 @@ public class AccountService {
         Account account = AccountMapper.toAccountEntity(accountRequestDTO);
 
         // Creazione casuale e univoca dell'iban
-        account.setIban(generateIban.generateIban());
+        account.setIban(generateNumbers.generateIban());
         account.setUser(user);
+
+        // Creazione casuale del numero di conto corrente
+        account.setAccountNumber(generateNumbers.generateAccountNumber());
+
+        // Creazione della transazione iniziale
+        Transaction transaction = new Transaction();
+        transaction.setCurrency(accountRequestDTO.getCurrency());
+        transaction.setAccount(account);
+        transaction.setAmount(accountRequestDTO.getBalance());
+        transaction.setDescription("Deposito iniziale");
+        transaction.setTransactionType(TransactionType.DEPOSIT);
 
         // Creazione della notifica
         Notification notification = new Notification();
@@ -62,5 +79,18 @@ public class AccountService {
         return user.getAccounts().stream()
                 .map(AccountMapper::toAccountDTO)
                 .collect(Collectors.toList());
+    }
+
+    public AccountResponseDTO findById(String username, long id) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Conto non esistente"));
+
+        if (!account.getUser().getUsername().equals(username)){
+            throw new BadRequestException("Il conto non appartiene all'utente autenticato");
+        }
+
+        return AccountMapper.toAccountDTO(account);
     }
 }

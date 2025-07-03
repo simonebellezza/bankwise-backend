@@ -12,6 +12,7 @@ public class CardResponseDTO {
     private CardType cardType; // es: "DEBIT", "CREDIT"
     private Circuit circuit;  // es: "VISA", "MASTERCARD"
     private String expirationDate;
+    private String iban;
     private boolean active;
     private String pin;
 }

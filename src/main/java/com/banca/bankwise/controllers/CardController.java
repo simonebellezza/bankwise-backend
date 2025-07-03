@@ -1,21 +1,17 @@
 package com.banca.bankwise.controllers;
 
-import com.banca.bankwise.dtos.CardRequestDTO;
-import com.banca.bankwise.dtos.CardResponseDTO;
-import com.banca.bankwise.dtos.TransactionRequestDTO;
-import com.banca.bankwise.dtos.TransactionResponseDTO;
+import com.banca.bankwise.dtos.*;
 import com.banca.bankwise.services.CardService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/card")
@@ -37,7 +33,7 @@ public class CardController {
 
     @Operation(summary = "Effettua un pagamento con una carta")
     @PostMapping("/payment")
-    public ResponseEntity<TransactionResponseDTO> paymentByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO,Principal principal) {
+    public ResponseEntity<TransactionResponseDTO> paymentByCard(@Valid @RequestBody TransactionRequestByCard transactionRequestDTO, Principal principal) {
         String username = principal.getName();
         TransactionResponseDTO transactionResponseDTO = cardService.paymentByCard(username, transactionRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
@@ -45,7 +41,7 @@ public class CardController {
 
     @Operation(summary = "Ricarica una carta")
     @PostMapping("/deposit")
-    public ResponseEntity<TransactionResponseDTO> depositByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO,Principal principal) {
+    public ResponseEntity<TransactionResponseDTO> depositByCard(@Valid @RequestBody TransactionRequestByCard transactionRequestDTO,Principal principal) {
         String username = principal.getName();
         TransactionResponseDTO transactionResponseDTO = cardService.depositByCard(username, transactionRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
@@ -53,10 +49,18 @@ public class CardController {
 
     @Operation(summary = "Preleva denaro da una carta")
     @PostMapping("/withdraw")
-    public ResponseEntity<TransactionResponseDTO> withdrawByCard(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO,Principal principal) {
+    public ResponseEntity<TransactionResponseDTO> withdrawByCard(@Valid @RequestBody TransactionRequestByCard transactionRequestDTO,Principal principal) {
         String username = principal.getName();
         TransactionResponseDTO transactionResponseDTO = cardService.withdrawalByCard(username, transactionRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
+    }
+
+    @Operation(summary = "Recupera le carte di un conto corrente")
+    @GetMapping("/{accountId}")
+    public ResponseEntity<List<CardResponseDTO>> getCardsByAccountId(@PathVariable Long accountId, Principal principal) {
+        String username = principal.getName();
+        List<CardResponseDTO> cardResponseDTOs = cardService.getCardsByAccountId(username, accountId);
+        return ResponseEntity.ok(cardResponseDTOs);
     }
 
 

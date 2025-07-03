@@ -36,9 +36,4 @@ public class UserRegisterDTO {
     @NotNull(message = "La data di nascita è obbligatoria.")
     @Past(message = "La data di nascita deve essere nel passato.")
     private LocalDate dateOfBirth;
-
-    @AssertTrue(message = "Devi essere maggiorenne (almeno 18 anni).")
-    public boolean isAdult() {
-        return dateOfBirth != null && Period.between(dateOfBirth, LocalDate.now()).getYears() >= 18;
-    }
 }

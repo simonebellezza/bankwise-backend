@@ -1,9 +1,6 @@
 package com.banca.bankwise.services;
 
-import com.banca.bankwise.dtos.CardRequestDTO;
-import com.banca.bankwise.dtos.CardResponseDTO;
-import com.banca.bankwise.dtos.TransactionRequestDTO;
-import com.banca.bankwise.dtos.TransactionResponseDTO;
+import com.banca.bankwise.dtos.*;
 import com.banca.bankwise.entities.*;
 import com.banca.bankwise.exceptions.AccountNotFoundException;
 import com.banca.bankwise.exceptions.BadRequestException;
@@ -20,6 +17,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -64,11 +62,12 @@ public class CardService {
         card.setCardNumber(generateCard.generateCardNumber(cardRequestDTO.getCircuit()));
         String pin = generateCard.generatePin();
         card.setPin(passwordEncoder.encode(pin));
+        card.setIban(account.getIban());
 
         // Creiamo la notifica
         Notification notification = new Notification();
         notification.setUser(user);
-        notification.setMessage("La tua carta numero: " + card.getCardNumber() + "adesso è attiva!");
+        notification.setMessage("La tua carta numero: " + card.getCardNumber() + " adesso è attiva!");
 
         // Salviamo la carta e la notifica
         cardRepository.save(card);
@@ -79,31 +78,21 @@ public class CardService {
     }
 
     @Transactional
-    public TransactionResponseDTO depositByCard(String username, TransactionRequestDTO transactionRequestDTO) {
+    public TransactionResponseDTO depositByCard(String username, TransactionRequestByCard transactionRequestDTO) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
         Card card = cardRepository.findById(transactionRequestDTO.getCardId())
                 .orElseThrow(() -> new CardNotFoundException("Carta non trovata"));
         Account account = card.getAccount();
 
-        // Controllo che la carta appartenga all'utente
+        // Controllo che il conto appartenga all'utente
         if (!account.getUser().getUsername().equals(username)) {
+            throw new BadRequestException("Il conto non appartiene all'utente");
+        }
+
+        // Controllo che la carta appartenga all'utente
+        if (!card.getUser().getUsername().equals(username)) {
             throw new BadRequestException("La carta non appartiene all'utente");
-        }
-
-        // Controllo che la carta sia attiva
-        if (!card.isActive()) {
-            throw new BadRequestException("La carta non è attiva");
-        }
-
-        // Controllo che ci siano cardId e pin
-        if (transactionRequestDTO.getCardId() == null) {
-            throw new BadRequestException("Non è stato fornito un ID carta");
-        }
-
-        // Controllo che ci sia un pin
-        if (transactionRequestDTO.getPin() == null || transactionRequestDTO.getPin().isEmpty()) {
-            throw new BadRequestException("Non è stato fornito un PIN");
         }
 
         // Controllo che il PIN sia corretto
@@ -111,7 +100,7 @@ public class CardService {
             throw new BadRequestException("PIN errato");
         }
 
-        Transaction transaction = TransactionMapper.toDeposit(transactionRequestDTO, account, card);
+        Transaction transaction = CardMapper.toDeposit(transactionRequestDTO, account, card);
 
         // Aggiorno il bilancio dell'account e aggiungo la transazione
         account.setBalance(account.getBalance().add(transaction.getAmount()));
@@ -120,11 +109,10 @@ public class CardService {
         account.getTransactions().add(transaction);
 
         // Creo la notifica
-
         Notification notification = new Notification();
         String cardNumber = card.getCardNumber().substring(card.getCardNumber().length() - 4);
 
-        notification.setMessage("Deposito ATM sul conto: *******" + cardNumber);
+        notification.setMessage("Deposito ATM sul conto: " + cardNumber);
         notification.setUser(user);
         user.getNotifications().add(notification);
 
@@ -136,30 +124,25 @@ public class CardService {
     }
 
     @Transactional
-    public TransactionResponseDTO paymentByCard(String username, TransactionRequestDTO transactionRequestDTO) {
+    public TransactionResponseDTO paymentByCard(String username, TransactionRequestByCard transactionRequestDTO) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
-
-        if (transactionRequestDTO.getCardId() == null) {
-            throw new BadRequestException("Non è stato fornito un ID carta");
-        }
 
         Card card = cardRepository.findById(transactionRequestDTO.getCardId())
                 .orElseThrow(() -> new CardNotFoundException("Carta non trovata"));
         Account account = card.getAccount();
 
+        // Controllo che il conto appartenga all'utente
         if (!account.getUser().getUsername().equals(username)) {
+            throw new BadRequestException("Il conto non appartiene all'utente");
+        }
+
+        // Controllo che la carta appartenga all'utente
+        if (!card.getUser().getUsername().equals(username)) {
             throw new BadRequestException("La carta non appartiene all'utente");
         }
 
-        if (!card.isActive()) {
-            throw new BadRequestException("La carta non è attiva");
-        }
-
-        if (transactionRequestDTO.getPin() == null || transactionRequestDTO.getPin().isEmpty()) {
-            throw new BadRequestException("Non è stato fornito un PIN");
-        }
-
+        // Controllo che il pin sia corretto
         if (!passwordEncoder.matches(transactionRequestDTO.getPin(), card.getPin())) {
             throw new BadRequestException("PIN errato");
         }
@@ -170,7 +153,7 @@ public class CardService {
         }
 
         // Creo la transazione di pagamento (importo negativo)
-        Transaction transaction = TransactionMapper.toPayment(transactionRequestDTO, account, card);
+        Transaction transaction = CardMapper.toPayment(transactionRequestDTO, account, card);
 
         // Aggiorno il bilancio sottraendo l'importo
         account.setBalance(account.getBalance().add(transaction.getAmount()));
@@ -180,7 +163,7 @@ public class CardService {
         // Notifica
         Notification notification = new Notification();
         String cardNumber = card.getCardNumber().substring(card.getCardNumber().length() - 4);
-        notification.setMessage("Pagamento effettuato tramite carta: *******" + cardNumber);
+        notification.setMessage("Pagamento effettuato tramite carta: " + cardNumber);
         notification.setUser(user);
         user.getNotifications().add(notification);
 
@@ -191,30 +174,25 @@ public class CardService {
     }
 
     @Transactional
-    public TransactionResponseDTO withdrawalByCard(String username, TransactionRequestDTO transactionRequestDTO) {
+    public TransactionResponseDTO withdrawalByCard(String username, TransactionRequestByCard transactionRequestDTO) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
-
-        if (transactionRequestDTO.getCardId() == null) {
-            throw new BadRequestException("Non è stato fornito un ID carta");
-        }
 
         Card card = cardRepository.findById(transactionRequestDTO.getCardId())
                 .orElseThrow(() -> new CardNotFoundException("Carta non trovata"));
         Account account = card.getAccount();
 
+        // Controllo che il conto appartenga all'utente
         if (!account.getUser().getUsername().equals(username)) {
+            throw new BadRequestException("Il conto non appartiene all'utente");
+        }
+
+        // Controllo che la carta appartenga all'utente
+        if (!card.getUser().getUsername().equals(username)) {
             throw new BadRequestException("La carta non appartiene all'utente");
         }
 
-        if (!card.isActive()) {
-            throw new BadRequestException("La carta non è attiva");
-        }
-
-        if (transactionRequestDTO.getPin() == null || transactionRequestDTO.getPin().isEmpty()) {
-            throw new BadRequestException("Non è stato fornito un PIN");
-        }
-
+        // Controllo che il pin sia corretto
         if (!passwordEncoder.matches(transactionRequestDTO.getPin(), card.getPin())) {
             throw new BadRequestException("PIN errato");
         }
@@ -225,7 +203,7 @@ public class CardService {
         }
 
         // Creo la transazione di prelievo (importo negativo)
-        Transaction transaction = TransactionMapper.toWithdrawal(transactionRequestDTO, account, card);
+        Transaction transaction = CardMapper.toWithdrawal(transactionRequestDTO, account, card);
 
         // Aggiorno il bilancio del conto
         account.setBalance(account.getBalance().add(transaction.getAmount()));
@@ -235,7 +213,7 @@ public class CardService {
         // Notifica
         Notification notification = new Notification();
         String cardNumber = card.getCardNumber().substring(card.getCardNumber().length() - 4);
-        notification.setMessage("Prelievo ATM tramite carta: ******* " + cardNumber);
+        notification.setMessage("Prelievo ATM tramite carta: " + cardNumber);
         notification.setUser(user);
         user.getNotifications().add(notification);
 
@@ -243,6 +221,22 @@ public class CardService {
         notificationRepository.save(notification);
 
         return TransactionMapper.toDto(transaction);
+    }
+
+    public List<CardResponseDTO> getCardsByAccountId(String username, Long accountId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Conto non trovato"));
+
+        // Controllo sull'appartenenza dell'account all'utente
+        if (!account.getUser().getUsername().equals(username)) {
+            throw new UserNotFoundException("Il conto non appartiene all'utente");
+        }
+
+        return account.getCards().stream()
+                .map(CardMapper::toCardResponseDTO)
+                .toList();
     }
 
 }

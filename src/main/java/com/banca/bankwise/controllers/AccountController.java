@@ -32,11 +32,19 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(accountResponseDTO);
     }
 
-    @Operation(summary = "Recupera accounts dell'utente corrente")
+    @Operation(summary = "Recupera i conti dell'utente corrente")
     @GetMapping("/accounts")
     public ResponseEntity<List<AccountResponseDTO>> findAllAccounts(Principal principal) {
         String username = principal.getName();
         List<AccountResponseDTO> accounts = accountService.findAll(username);
         return ResponseEntity.ok(accounts);
+    }
+
+    @Operation(summary = "Recupera il conto dell'utente corrente")
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountResponseDTO> findAccountById(Principal principal,@PathVariable long id) {
+        String username = principal.getName();
+        AccountResponseDTO account = accountService.findById(username, id);
+        return ResponseEntity.ok(account);
     }
 }

@@ -1,8 +1,10 @@
 package com.banca.bankwise.mappers;
 
-import com.banca.bankwise.dtos.CardRequestDTO;
-import com.banca.bankwise.dtos.CardResponseDTO;
+import com.banca.bankwise.dtos.*;
+import com.banca.bankwise.entities.Account;
 import com.banca.bankwise.entities.Card;
+import com.banca.bankwise.entities.Transaction;
+import com.banca.bankwise.enums.TransactionType;
 
 public class CardMapper {
 
@@ -14,6 +16,7 @@ public class CardMapper {
         dto.setId(card.getId());
         dto.setCardNumber(card.getCardNumber());
         dto.setCardType(card.getCardType());
+        dto.setIban(card.getIban());
         dto.setCircuit(card.getCircuit());
         dto.setActive(card.isActive());
         dto.setExpirationDate(card.getExpirationDate().toString());
@@ -29,5 +32,43 @@ public class CardMapper {
         card.setCircuit(cardRequestDTO.getCircuit());
 
         return card;
+    }
+
+    public static Transaction toDeposit(TransactionRequestByCard dto, Account account, Card card) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionType(TransactionType.DEPOSIT);
+        transaction.setAccount(account);
+        transaction.setAmount(dto.getAmount());
+        transaction.setCurrency(account.getCurrency());
+        transaction.setDescription(dto.getDescription());
+        if (card != null) {
+            transaction.setCard(card);
+        }
+        return transaction;
+    }
+
+    public static Transaction toWithdrawal(TransactionRequestByCard dto, Account account, Card card) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionType(TransactionType.WITHDRAWAL);
+        transaction.setAccount(account);
+        transaction.setAmount(dto.getAmount().negate());
+        transaction.setCurrency(account.getCurrency());
+        transaction.setDescription(dto.getDescription());
+        if (card != null) {
+            transaction.setCard(card);
+        }
+        return transaction;
+    }
+    public static Transaction toPayment(TransactionRequestByCard dto, Account account, Card card) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionType(TransactionType.PAYMENT);
+        transaction.setAccount(account);
+        transaction.setAmount(dto.getAmount().negate());
+        transaction.setCurrency(account.getCurrency());
+        transaction.setDescription(dto.getDescription());
+        if (card != null) {
+            transaction.setCard(card);
+        }
+        return transaction;
     }
 }
