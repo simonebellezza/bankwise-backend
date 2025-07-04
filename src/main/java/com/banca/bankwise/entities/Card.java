@@ -24,11 +24,11 @@ public class Card {
 
     @Column(name = "card_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private CardType cardType; // es: "DEBIT", "CREDIT"
+    private CardType cardType;
 
     @Column(name = "circuit", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Circuit circuit;  // es: "VISA", "MASTERCARD"
+    private Circuit circuit;
 
     @Column(name = "expiration_date", nullable = false)
     private LocalDate expirationDate = LocalDate.now().plusYears(3);

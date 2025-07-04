@@ -12,6 +12,7 @@ public class AccountMapper {
         accountDTO.setIban(account.getIban());
         accountDTO.setBalance(account.getBalance());
         accountDTO.setCurrency(account.getCurrency());
+        accountDTO.setAccountNumber(account.getAccountNumber());
         return accountDTO;
     }
 

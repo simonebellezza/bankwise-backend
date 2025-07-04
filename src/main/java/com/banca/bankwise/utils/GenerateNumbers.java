@@ -43,7 +43,7 @@ public class GenerateNumbers {
 
             // Sequenza di 12 numeri generati per conto
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i <= 12; i++) {
+            for (int i = 0; i < 13; i++) {
                 stringBuilder.append(random.nextInt(10));
             }
 

@@ -11,4 +11,5 @@ public class AccountResponseDTO {
     private BigDecimal balance;
     private Currency currency;
     private String iban;
+    private String accountNumber;
 }
