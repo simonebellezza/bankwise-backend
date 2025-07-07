@@ -16,7 +16,6 @@ public class CardMapper {
         dto.setId(card.getId());
         dto.setCardNumber(card.getCardNumber());
         dto.setCardType(card.getCardType());
-        dto.setIban(card.getIban());
         dto.setCircuit(card.getCircuit());
         dto.setActive(card.isActive());
         dto.setExpirationDate(card.getExpirationDate().toString());

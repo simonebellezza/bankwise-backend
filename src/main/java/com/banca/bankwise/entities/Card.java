@@ -19,9 +19,6 @@ public class Card {
     @Column(name = "card_number", nullable = false, unique = true)
     private String cardNumber;
 
-    @Column(name = "iban", nullable = false, unique = true)
-    private String iban;
-
     @Column(name = "card_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private CardType cardType;

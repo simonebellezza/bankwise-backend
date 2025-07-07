@@ -31,6 +31,7 @@ public class GenerateNumbers {
             stringBuilder.insert(14, "-");
             stringBuilder.insert(10, "-");
             stringBuilder.insert(6, "-");
+            stringBuilder.insert(2, "-");
             iban = stringBuilder.toString();
         } while (accountRepository.existsByIban(iban));
 

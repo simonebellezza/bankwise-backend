@@ -20,18 +20,21 @@ public class GenerateCard {
 
     public String generateCardNumber(Circuit circuit) {
         do {
-        StringBuilder stringBuilder = new StringBuilder(circuit.getPrefix());
-        for (int i = 0; i < circuit.getLength() - circuit.getPrefix().length(); i++) {
-            stringBuilder.append(random.nextInt(10));
-        }
-        cardNumber = stringBuilder.toString();
+            StringBuilder stringBuilder = new StringBuilder(circuit.getPrefix());
+            for (int i = 0; i < circuit.getLength() - circuit.getPrefix().length(); i++) {
+                stringBuilder.append(random.nextInt(10));
+            }
+            stringBuilder.insert(12, ' ');
+            stringBuilder.insert(8, ' ');
+            stringBuilder.insert(4, ' ');
+            cardNumber = stringBuilder.toString();
         } while (cardRepository.existsByCardNumber(cardNumber));
         return cardNumber;
     }
 
     public String generatePin() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i <= 4; i++) {
             builder.append(random.nextInt(10));
         }
         return builder.toString();

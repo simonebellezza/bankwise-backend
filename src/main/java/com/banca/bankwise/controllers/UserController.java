@@ -3,6 +3,7 @@ package com.banca.bankwise.controllers;
 import com.banca.bankwise.dtos.UserLoginDTO;
 import com.banca.bankwise.dtos.UserRegisterDTO;
 import com.banca.bankwise.dtos.UserResponseDTO;
+import com.banca.bankwise.dtos.UserUpdateDTO;
 import com.banca.bankwise.services.AccountService;
 import com.banca.bankwise.services.UserService;
 import com.banca.bankwise.utils.JwtUtil;
@@ -59,6 +60,14 @@ public class UserController {
         String username = principal.getName();
         UserResponseDTO userResponseDTO = userService.getUserByUsername(username);
         return ResponseEntity.ok(userResponseDTO);
+    }
+
+    @Operation(summary = "Aggiorna le informazioni dell'utente")
+    @PatchMapping("/update")
+    public ResponseEntity<UserResponseDTO> updateUser(@Valid @RequestBody UserUpdateDTO user, Principal principal) {
+        String username = principal.getName();
+        UserResponseDTO updatedUser = userService.updateUser(username, user);
+        return ResponseEntity.ok(updatedUser);
     }
 
 }

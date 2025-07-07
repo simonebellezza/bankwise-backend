@@ -3,6 +3,7 @@ package com.banca.bankwise.controllers;
 import com.banca.bankwise.dtos.ErrorResponseDTO;
 import com.banca.bankwise.exceptions.AccountNotFoundException;
 import com.banca.bankwise.exceptions.BadRequestException;
+import com.banca.bankwise.exceptions.CardNotFoundException;
 import com.banca.bankwise.exceptions.UserNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,13 @@ public class ExceptionHandlerController {
     // Gestisce Username non presenti
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleUsernameNotFoundException(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponseDTO(404, ex.getMessage()));
+    }
+
+    // Gestisce carte non presenti
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleCardsNotFoundException(CardNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponseDTO(404, ex.getMessage()));
     }

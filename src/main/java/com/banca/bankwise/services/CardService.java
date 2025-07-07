@@ -62,12 +62,11 @@ public class CardService {
         card.setCardNumber(generateCard.generateCardNumber(cardRequestDTO.getCircuit()));
         String pin = generateCard.generatePin();
         card.setPin(passwordEncoder.encode(pin));
-        card.setIban(account.getIban());
 
         // Creiamo la notifica
         Notification notification = new Notification();
         notification.setUser(user);
-        notification.setMessage("La tua carta numero: " + card.getCardNumber() + " adesso è attiva!");
+        notification.setMessage("La tua carta numero " + card.getCardNumber() + " adesso è attiva!");
 
         // Salviamo la carta e la notifica
         cardRepository.save(card);
@@ -239,4 +238,20 @@ public class CardService {
                 .toList();
     }
 
+    public List<CardResponseDTO> getCardsByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+
+        // Recupero tutte le carte associate all'utente
+        List<Card> cards = user.getCards();
+
+        if (cards.isEmpty()) {
+            throw new CardNotFoundException("Nessuna carta trovata per l'utente: " + username);
+        }
+
+        // Mappo le carte in CardResponseDTO
+        return cards.stream()
+                .map(CardMapper::toCardResponseDTO)
+                .toList();
+    }
 }

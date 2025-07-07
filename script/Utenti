@@ -1,0 +1,45 @@
+// Utenti già pronti da inserire tramite la rotta /register
+[
+  {
+    "username": "mario.rossi",
+    "password": "Password123!",
+    "conti": [
+      {
+        "conto": "8278866596250",
+        "iban": "IT-1168-0920-3935-8268-168160255"
+        "carte": [
+          { "pin": "98596", "cardNumber": "4872 7610 4242 7631" },
+          { "pin": "20187", "cardNumber": "3435 2735 2026 063" },
+        ]
+      },
+      {
+        "conto": "7055238844487",
+        "carte": [
+          { "pin": "72808", "cardNumber": "5101 5911 2592 8837" },
+          { "pin": "38313", "cardNumber": "4885 1023 1981 3777" }
+        ]
+      }
+    ]
+  },
+  {
+    "username": "giulia.bianchi",
+    "password": "Password123!",
+    "conti": [
+          {
+            "conto": "",
+            "carte": [
+              { "pin": "", "cardNumber": "" },
+              { "pin": "", "cardNumber": "" },
+            ]
+          },
+          {
+            "conto": "",
+            "carte": [
+              { "pin": "", "cardNumber": "" },
+              { "pin": "", "cardNumber": "" }
+            ]
+          }
+        ]
+    ]
+  }
+]

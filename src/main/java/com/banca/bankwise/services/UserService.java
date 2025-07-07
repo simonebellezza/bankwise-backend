@@ -2,6 +2,7 @@ package com.banca.bankwise.services;
 
 import com.banca.bankwise.dtos.UserRegisterDTO;
 import com.banca.bankwise.dtos.UserResponseDTO;
+import com.banca.bankwise.dtos.UserUpdateDTO;
 import com.banca.bankwise.entities.User;
 import com.banca.bankwise.exceptions.BadRequestException;
 import com.banca.bankwise.exceptions.UserNotFoundException;
@@ -48,6 +49,45 @@ public class UserService {
     public UserResponseDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+        return UserMapper.toUserResponseDTO(user);
+    }
+
+    // Aggiorna l'utente
+    public UserResponseDTO updateUser(String username, UserUpdateDTO userDTO) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+
+        if (userDTO.getFirstName() != null) {
+            user.setFirstName(userDTO.getFirstName());
+        }
+
+        if (userDTO.getLastName() != null) {
+            user.setLastName(userDTO.getLastName());
+        }
+
+        if (userDTO.getEmail() != null) {
+            user.setEmail(userDTO.getEmail());
+        }
+
+        if (userDTO.getPhoneNumber() != null) {
+            user.setPhoneNumber(userDTO.getPhoneNumber());
+        }
+
+        if (userDTO.getAddress() != null) {
+            user.setAddress(userDTO.getAddress());
+        }
+
+        if (userDTO.getDateOfBirth() != null) {
+            // Controlla se l'utente è maggiorenne
+            if(Period.between(userDTO.getDateOfBirth(), LocalDate.now()).getYears() < 18) {
+                throw new BadRequestException("Devi essere maggiorenne (almeno 18 anni)");
+            }
+            user.setDateOfBirth(userDTO.getDateOfBirth());
+        }
+
+        // Salva l'utente aggiornato
+        userRepository.save(user);
+
         return UserMapper.toUserResponseDTO(user);
     }
 }

@@ -55,4 +55,5 @@ public class TransactionController {
         List<TransactionResponseDTO> transactions = transactionService.getTransactions(username, accountId);
         return ResponseEntity.ok(transactions);
     }
+
 }

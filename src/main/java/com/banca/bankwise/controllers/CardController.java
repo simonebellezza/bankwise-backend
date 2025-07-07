@@ -31,7 +31,7 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(cardResponseDTO);
     }
 
-    @Operation(summary = "Effettua un pagamento con una carta")
+    @Operation(summary = "Effettua un pagamento tramite carta")
     @PostMapping("/payment")
     public ResponseEntity<TransactionResponseDTO> paymentByCard(@Valid @RequestBody TransactionRequestByCard transactionRequestDTO, Principal principal) {
         String username = principal.getName();
@@ -39,7 +39,7 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
     }
 
-    @Operation(summary = "Ricarica una carta")
+    @Operation(summary = "Deposita denaro tramite carta")
     @PostMapping("/deposit")
     public ResponseEntity<TransactionResponseDTO> depositByCard(@Valid @RequestBody TransactionRequestByCard transactionRequestDTO,Principal principal) {
         String username = principal.getName();
@@ -47,7 +47,7 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
     }
 
-    @Operation(summary = "Preleva denaro da una carta")
+    @Operation(summary = "Preleva denaro tramite carta")
     @PostMapping("/withdraw")
     public ResponseEntity<TransactionResponseDTO> withdrawByCard(@Valid @RequestBody TransactionRequestByCard transactionRequestDTO,Principal principal) {
         String username = principal.getName();
@@ -60,6 +60,14 @@ public class CardController {
     public ResponseEntity<List<CardResponseDTO>> getCardsByAccountId(@PathVariable Long accountId, Principal principal) {
         String username = principal.getName();
         List<CardResponseDTO> cardResponseDTOs = cardService.getCardsByAccountId(username, accountId);
+        return ResponseEntity.ok(cardResponseDTOs);
+    }
+
+    @Operation(summary = "Recupera le carte di un utente")
+    @GetMapping("/cards")
+    public ResponseEntity<List<CardResponseDTO>> getCardsByUser(Principal principal) {
+        String username = principal.getName();
+        List<CardResponseDTO> cardResponseDTOs = cardService.getCardsByUser(username);
         return ResponseEntity.ok(cardResponseDTOs);
     }
 
