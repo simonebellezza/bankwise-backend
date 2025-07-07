@@ -71,6 +71,12 @@ public class CardController {
         return ResponseEntity.ok(cardResponseDTOs);
     }
 
-
+    @Operation(summary = "Elimina una carta")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteCard(@PathVariable Long id, Principal principal) {
+        String username = principal.getName();
+        cardService.deleteCard(username, id);
+        return ResponseEntity.noContent().build();
+    }
 
 }

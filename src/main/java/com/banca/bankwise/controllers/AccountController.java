@@ -47,4 +47,12 @@ public class AccountController {
         AccountResponseDTO account = accountService.findById(username, id);
         return ResponseEntity.ok(account);
     }
+
+    @Operation(summary= "Elimina un conto")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteAccount(Principal principal, @PathVariable long id) {
+        String username = principal.getName();
+        accountService.deleteAccount(username, id);
+        return ResponseEntity.noContent().build();
+    }
 }

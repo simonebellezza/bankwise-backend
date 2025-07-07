@@ -254,4 +254,24 @@ public class CardService {
                 .map(CardMapper::toCardResponseDTO)
                 .toList();
     }
+
+    @Transactional
+    public void deleteCard(String username, Long cardId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardNotFoundException("Carta non trovata"));
+
+        // Controllo che la carta appartenga all'utente
+        if (!card.getUser().getUsername().equals(username)) {
+            throw new BadRequestException("La carta non appartiene all'utente");
+        }
+
+        // Rimuovo la carta dall'utente e dal conto
+        user.getCards().remove(card);
+        card.getAccount().getCards().remove(card);
+
+        // Elimino la carta
+        cardRepository.delete(card);
+    }
 }

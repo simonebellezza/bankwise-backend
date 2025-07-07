@@ -93,4 +93,20 @@ public class AccountService {
 
         return AccountMapper.toAccountDTO(account);
     }
+
+    @Transactional
+    public void deleteAccount(String username, long id) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Conto non esistente"));
+
+        if (!account.getUser().getUsername().equals(username)){
+            throw new BadRequestException("Il conto non appartiene all'utente autenticato");
+        }
+
+        // Rimuovo l'account dall'utente
+        user.getAccounts().remove(account);
+        accountRepository.delete(account);
+    }
 }

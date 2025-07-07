@@ -27,12 +27,12 @@ public class UserService {
 
     // Crea un utente
     public UserResponseDTO createUser(UserRegisterDTO userRegisterDTO) {
-        if(userRepository.existsByUsername(userRegisterDTO.getUsername())){
+        if (userRepository.existsByUsername(userRegisterDTO.getUsername())) {
             throw new BadRequestException("Username già utilizzato");
         }
 
         // Controlla se l'utente è maggiorenne
-        if(Period.between(userRegisterDTO.getDateOfBirth(), LocalDate.now()).getYears() < 18) {
+        if (Period.between(userRegisterDTO.getDateOfBirth(), LocalDate.now()).getYears() < 18) {
             throw new BadRequestException("Devi essere maggiorenne (almeno 18 anni)");
         }
 
@@ -79,7 +79,7 @@ public class UserService {
 
         if (userDTO.getDateOfBirth() != null) {
             // Controlla se l'utente è maggiorenne
-            if(Period.between(userDTO.getDateOfBirth(), LocalDate.now()).getYears() < 18) {
+            if (Period.between(userDTO.getDateOfBirth(), LocalDate.now()).getYears() < 18) {
                 throw new BadRequestException("Devi essere maggiorenne (almeno 18 anni)");
             }
             user.setDateOfBirth(userDTO.getDateOfBirth());
@@ -89,5 +89,12 @@ public class UserService {
         userRepository.save(user);
 
         return UserMapper.toUserResponseDTO(user);
+    }
+
+    // Elimina l'utente
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
+        userRepository.delete(user);
     }
 }

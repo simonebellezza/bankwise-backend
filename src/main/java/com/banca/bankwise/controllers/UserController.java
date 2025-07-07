@@ -70,4 +70,12 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @Operation(summary = "Elimina l'utente corrente")
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(Principal principal) {
+        String username = principal.getName();
+        userService.deleteUser(username);
+        return ResponseEntity.ok("Utente eliminato correttamente");
+    }
+
 }
