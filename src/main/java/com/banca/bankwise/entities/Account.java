@@ -38,12 +38,10 @@ package com.banca.bankwise.entities;
         @JoinColumn(name = "user_id", nullable = false)
         private User user;
 
-        @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
         private List<Transaction> transactions;
 
-        @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
         private List<Card> cards;
-
-
 
     }

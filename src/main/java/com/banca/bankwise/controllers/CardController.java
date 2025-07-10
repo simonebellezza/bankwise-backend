@@ -63,14 +63,6 @@ public class CardController {
         return ResponseEntity.ok(cardResponseDTOs);
     }
 
-    @Operation(summary = "Recupera le carte di un utente")
-    @GetMapping("/cards")
-    public ResponseEntity<List<CardResponseDTO>> getCardsByUser(Principal principal) {
-        String username = principal.getName();
-        List<CardResponseDTO> cardResponseDTOs = cardService.getCardsByUser(username);
-        return ResponseEntity.ok(cardResponseDTOs);
-    }
-
     @Operation(summary = "Elimina una carta")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteCard(@PathVariable Long id, Principal principal) {

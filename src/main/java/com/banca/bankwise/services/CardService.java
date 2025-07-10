@@ -57,7 +57,6 @@ public class CardService {
 
         // Creiamo la carta
         Card card = CardMapper.toEntity(cardRequestDTO);
-        card.setUser(user);
         card.setAccount(account);
         card.setCardNumber(generateCard.generateCardNumber(cardRequestDTO.getCircuit()));
         String pin = generateCard.generatePin();
@@ -87,11 +86,6 @@ public class CardService {
         // Controllo che il conto appartenga all'utente
         if (!account.getUser().getUsername().equals(username)) {
             throw new BadRequestException("Il conto non appartiene all'utente");
-        }
-
-        // Controllo che la carta appartenga all'utente
-        if (!card.getUser().getUsername().equals(username)) {
-            throw new BadRequestException("La carta non appartiene all'utente");
         }
 
         // Controllo che il PIN sia corretto
@@ -134,11 +128,6 @@ public class CardService {
         // Controllo che il conto appartenga all'utente
         if (!account.getUser().getUsername().equals(username)) {
             throw new BadRequestException("Il conto non appartiene all'utente");
-        }
-
-        // Controllo che la carta appartenga all'utente
-        if (!card.getUser().getUsername().equals(username)) {
-            throw new BadRequestException("La carta non appartiene all'utente");
         }
 
         // Controllo che il pin sia corretto
@@ -186,11 +175,6 @@ public class CardService {
             throw new BadRequestException("Il conto non appartiene all'utente");
         }
 
-        // Controllo che la carta appartenga all'utente
-        if (!card.getUser().getUsername().equals(username)) {
-            throw new BadRequestException("La carta non appartiene all'utente");
-        }
-
         // Controllo che il pin sia corretto
         if (!passwordEncoder.matches(transactionRequestDTO.getPin(), card.getPin())) {
             throw new BadRequestException("PIN errato");
@@ -228,7 +212,7 @@ public class CardService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException("Conto non trovato"));
 
-        // Controllo sull'appartenenza dell'account all'utente
+        // Controllo sull'appartenenza del conto all'utente
         if (!account.getUser().getUsername().equals(username)) {
             throw new UserNotFoundException("Il conto non appartiene all'utente");
         }
@@ -238,22 +222,6 @@ public class CardService {
                 .toList();
     }
 
-    public List<CardResponseDTO> getCardsByUser(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
-
-        // Recupero tutte le carte associate all'utente
-        List<Card> cards = user.getCards();
-
-        if (cards.isEmpty()) {
-            throw new CardNotFoundException("Nessuna carta trovata per l'utente: " + username);
-        }
-
-        // Mappo le carte in CardResponseDTO
-        return cards.stream()
-                .map(CardMapper::toCardResponseDTO)
-                .toList();
-    }
 
     @Transactional
     public void deleteCard(String username, Long cardId) {
@@ -262,14 +230,12 @@ public class CardService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException("Carta non trovata"));
 
-        // Controllo che la carta appartenga all'utente
-        if (!card.getUser().getUsername().equals(username)) {
-            throw new BadRequestException("La carta non appartiene all'utente");
-        }
+        Account account = card.getAccount();
 
-        // Rimuovo la carta dall'utente e dal conto
-        user.getCards().remove(card);
-        card.getAccount().getCards().remove(card);
+        // Controllo che il conto appartenga all'utente
+        if (!account.getUser().getUsername().equals(username)) {
+            throw new BadRequestException("Il conto non appartiene all'utente");
+        }
 
         // Elimino la carta
         cardRepository.delete(card);

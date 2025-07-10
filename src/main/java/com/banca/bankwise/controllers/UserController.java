@@ -63,7 +63,7 @@ public class UserController {
     }
 
     @Operation(summary = "Aggiorna le informazioni dell'utente")
-    @PatchMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<UserResponseDTO> updateUser(@Valid @RequestBody UserUpdateDTO user, Principal principal) {
         String username = principal.getName();
         UserResponseDTO updatedUser = userService.updateUser(username, user);

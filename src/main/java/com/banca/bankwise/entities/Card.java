@@ -37,13 +37,7 @@ public class Card {
     private boolean active = true;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> transactions;
 }

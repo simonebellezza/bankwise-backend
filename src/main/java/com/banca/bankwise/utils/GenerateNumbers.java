@@ -23,7 +23,6 @@ public class GenerateNumbers {
 
         do {
             StringBuilder stringBuilder = new StringBuilder(IBAN_PREFIX);
-            // 27 è la lunghezza dell'Iban. IBAN_PREFIX + 25
             for (int i = 0; i < 25; i++) {
                 stringBuilder.append(random.nextInt(10));
             }
@@ -42,7 +41,6 @@ public class GenerateNumbers {
         String accountNumber;
         do {
 
-            // Sequenza di 12 numeri generati per conto
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < 13; i++) {
                 stringBuilder.append(random.nextInt(10));
