@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -67,8 +66,8 @@ public class ExceptionHandlerController {
                 .body(new ErrorResponseDTO(409, "Vincolo di integrità violato: dati duplicati o invalidi"));
     }
 
-    // Gestisce valori enum non presenti. Currency è l'unico enum inserito lato client
-   // Gestisce valori enum non presenti per CardType e Circuit
+
+   // Gestisce valori enum non presenti per Currency, CardType e Circuit
    @ExceptionHandler(HttpMessageNotReadableException.class)
    public ResponseEntity<ErrorResponseDTO> handleInvalidEnum(HttpMessageNotReadableException ex) {
        String message = ex.getMessage();

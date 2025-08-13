@@ -81,7 +81,7 @@ public class TransactionService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
 
-        // Recupera l'account e verifica che appartenga all'utente
+        // Recupera l'account
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException("Account non trovato"));
 
@@ -118,7 +118,7 @@ public class TransactionService {
     @Transactional
     public TransactionResponseDTO transfer(TransactionTransferRequestDTO dto, String username) {
 
-        // Recupero l'utente loggato
+        // Recupera l'utente autenticato
         User sender = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Conto non trovato"));
 
